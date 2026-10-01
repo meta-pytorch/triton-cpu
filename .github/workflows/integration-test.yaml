@@ -12,7 +12,7 @@ concurrency:
 jobs:
   # ── CPU Runner Tests ──────────────────────────────────────────────────
   test-cpu-x86-avx512:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -86,7 +86,7 @@ jobs:
           echo "PASS: Required env vars present"
 
   test-cpu-x86-amx:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -152,7 +152,7 @@ jobs:
           echo "PASS: TORCH_CI_MAX_MEMORY is correct"
 
   test-cpu-arm64:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-arm64g3-16-62"] }
+    runs-on: ["mt-l-arm64g3-16-62"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -215,7 +215,7 @@ jobs:
   # meta-prod-aws-uw1, which deploys only arc-runners-h100) the outer ARC_RUNNERS
   # gate strips it, so it can't queue forever on a runner label that never exists.
   test-pip-install-upstream:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: python:3.12-slim
     steps:
@@ -237,7 +237,7 @@ jobs:
 
   # ── HF Cache: read-only mount, env, and offline model load ──────────
   test-hf-cache-mount:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: python:3.12-slim
     steps:
@@ -283,7 +283,7 @@ jobs:
   # Read path mirroring a real CI job: HF_HOME=/mnt/hf_cache + offline flags, load
   # a small model. Fails if the cache isn't populated.
   test-hf-cache-offline-read:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: python:3.12-slim
     env:
@@ -324,7 +324,7 @@ jobs:
     # faulting them (repro'd on 32/64GB, even low_cpu_mem_usage=False). On GPU
     # weights go to VRAM, so generate never touches the FUSE. A single L4 (24GB)
     # fits 7B bf16 — far cheaper than an A100/p4d node for a 1-GPU test.
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86aavx2-29-113-l4"] }
+    runs-on: ["mt-l-x86aavx2-29-113-l4"]
     container:
       image: python:3.12-slim
     env:
@@ -382,7 +382,7 @@ jobs:
   # online, then aws s3 sync to the bucket. Hard-fails if the role can't be assumed
   # (missing hf-cache-write env/trust) — must be fixed, not silently skipped.
   test-hf-cache-refresh-sync:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     environment: hf-cache-write
     permissions:
       id-token: write
@@ -433,7 +433,7 @@ jobs:
   # `aws s3 sync` of the same model to a per-run prefix and assert all succeed and the
   # result converges to a complete, consistent object set (no object lost to a race).
   test-hf-cache-concurrent-sync:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     environment: hf-cache-write
     permissions:
       id-token: write
@@ -521,7 +521,7 @@ jobs:
 
   # ── GPU Runner Tests ──────────────────────────────────────────────────
   test-gpu-t4:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iavx512-29-115-t4"] }
+    runs-on: ["mt-l-x86iavx512-29-115-t4"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -568,7 +568,7 @@ jobs:
           echo "PASS: TORCH_CI_MAX_MEMORY is correct"
 
   test-gpu-t4-multi:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iavx512-45-172-t4-4"] }
+    runs-on: ["mt-l-x86iavx512-45-172-t4-4"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -610,19 +610,17 @@ jobs:
     uses: ./.github/workflows/build-image.yaml
     with:
       arch: amd64
-      runner_label: c-mt-l-x86iamx-8-32
-      runner_group: "meta-prod-aws-ue1"
+      runner_label: mt-l-x86iamx-8-32
 
   buildkit-arm64:
     uses: ./.github/workflows/build-image.yaml
     with:
       arch: arm64
-      runner_label: c-mt-l-x86iamx-8-32
-      runner_group: "meta-prod-aws-ue1"
+      runner_label: mt-l-x86iamx-8-32
 
   # ── Harbor Cache Test ─────────────────────────────────────────────────
   test-harbor:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -649,7 +647,7 @@ jobs:
   # tree-SHA, this test will fail with ImagePullBackOff — that is correct
   # behavior, surfacing the ECR rebuild lag as a real signal.
   test-ecr-pull:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: 308535385114.dkr.ecr.us-east-1.amazonaws.com/pytorch/ci-image:pytorch-linux-jammy-linter-6d6d9d464d429612b7fd49e4fbb7ad6a6210b9f2
     steps:
@@ -672,7 +670,7 @@ jobs:
   # Skipped on prod: prod release runner groups are restricted to selected
   # pytorch workflows, so the canary PR can't schedule on them (see phases.py).
   test-release-arm64:
-    runs-on: { group: "meta-prod-aws-ue1-release-runners", labels: ["c-mt-rel-l-arm64g3-44-340"] }
+    runs-on: ["mt-rel-l-arm64g3-44-340"]
     timeout-minutes: 180
     container:
       image: python:3.12-slim
@@ -706,7 +704,7 @@ jobs:
           fi
           echo "PASS: built $(basename "$WHL")"
   test-release-x86:
-    runs-on: { group: "meta-prod-aws-ue1-release-runners", labels: ["c-mt-rel-l-x86iavx512-44-340"] }
+    runs-on: ["mt-rel-l-x86iavx512-44-340"]
     timeout-minutes: 180
     container:
       image: python:3.12-slim
@@ -750,7 +748,7 @@ jobs:
   # sandbox holds none at all — and (4) concurrent requests each get their own
   # gVisor pod, which is what makes the fleet scale out instead of queueing.
   test-agent-sandbox:
-    runs-on: { group: "meta-prod-aws-ue1", labels: ["c-mt-l-x86iamx-8-32"] }
+    runs-on: ["mt-l-x86iamx-8-32"]
     container:
       image: ghcr.io/actions/actions-runner:latest
     env:

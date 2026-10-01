@@ -26,9 +26,7 @@ jobs:
   build:
     # NOTE: Always runs on x86 — BuildKit is a *remote* builder.
     # The arch input selects which BuildKit endpoint to connect to.
-    runs-on:
-      group: ${{ inputs.runner_group }}
-      labels: [ "${{ inputs.runner_label }}" ]
+    runs-on: [ "${{ inputs.runner_label }}" ]
     container:
       image: ghcr.io/actions/actions-runner:latest
     steps:
@@ -92,9 +90,7 @@ jobs:
     # below the configured max, which is what leaves headroom for a lagging pod.
     # The buildx-client retry tolerates the gRPC connect race while the pool is
     # coming up cold.
-    runs-on:
-      group: ${{ inputs.runner_group }}
-      labels: [ "${{ inputs.runner_label }}" ]
+    runs-on: [ "${{ inputs.runner_label }}" ]
     timeout-minutes: 15
     strategy:
       fail-fast: false
